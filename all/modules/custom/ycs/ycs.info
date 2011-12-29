@@ -1,0 +1,10 @@
+; $Id$
+name = YCS: specific mods
+description = YCS Modules
+package = YCS Youngstown City Schools specific modules
+core = 7.x
+
+files[] = ycs.module
+
+;dependencies[] = autoload
+;php = 5.2

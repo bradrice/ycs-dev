@@ -1,0 +1,193 @@
+body {
+    background-color: #ddd;
+}
+
+body.front div.field-type-image {
+    float: right;
+    margin-left: 12px;
+    margin-bottom: 6px;
+    border: 1px solid #000;
+}
+
+body.front span.submitted {
+    display: none;
+}
+
+/* sections */
+
+div#body-wrapper {
+    background-image: url(images/ycs_back.png);
+    background-repeat: repeat-x;
+}
+
+#body-content {
+    padding: 20px;
+    background-color: #fff;
+}
+
+#header {
+margin: 0 0 18px;
+padding: 36px 0 0;
+}
+
+#navigation ul.main-menu li {
+    width: 239px;
+    text-transform: uppercase;
+    font-size: 1.1em;
+    margin: auto;
+}
+
+nav ul {
+    list-style: none;
+}
+
+article {
+    padding-top: 24px;
+}
+
+section#block-search-form {
+    float: right;
+}
+
+div.region-sidebar-first div.views-field-field-image {
+    float: left;
+    margin: 0 12px 6px 0;
+}
+
+article.node-home-page-banner header {
+    display: none;
+}
+
+#footer {
+    padding: 20px;
+    background-color: #5195ce;
+    background-image: -webkit-gradient(linear, left top, left bottom, to(rgb(81, 149, 206)), from(rgb(255, 255, 255)));
+    background-image: -webkit-linear-gradient(top, rgb(81, 149, 206), rgb(255, 255, 255));
+    background-image: -moz-linear-gradient(top, rgb(81, 149, 206), rgb(255, 255, 255));
+    background-image: -o-linear-gradient(top, rgb(81, 149, 206), rgb(255, 255, 255));
+    background-image: -ms-linear-gradient(top, rgb(81, 149, 206), rgb(255, 255, 255));
+    background-image: linear-gradient(top, rgb(81, 149, 206), rgb(255, 255, 255));
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#5195ce', EndColorStr='#ffffff');
+    width: 100%;
+}
+
+#footer h4 {
+    color: #fff;
+    margin-bottom: 4px;
+    font-weight: 700;
+}
+
+#footer div.social_m img {
+    margin: 0 8px;
+}
+
+div#home_banner img {
+    border: 1px solid #000;
+}
+
+
+section#block-views-current-news-block h4 {
+    font-size: 14px;
+    font-weight: bold;
+    color: #02243c;
+    margin-bottom: 6px;
+}
+
+section#block-views-current-news-block h2, section#block-views-calendar-block-2 h2 {
+    font-size: 16px;
+    margin-bottom: 12px;
+    color: #8f2831;
+    font-weight: bold;
+}
+
+span.date-display-single {
+    font-style: italic;
+    color: #3d577a;
+}
+
+article h2 {
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+article footer {
+    width: auto;
+}
+
+div.view-calendar li {
+    margin-bottom: 12px;
+}
+
+div.full_calendar_icon img {
+    float: left;
+    margin-right: 12px;
+}
+
+div.full_calendar_icon h2 {
+    font-size: 18px;
+}
+
+a.feed-icon {
+    display: none;
+}
+
+body.page-node div.field-type-image {
+    float: right;
+    margin-left: 12px;
+    margin-bottom: 6px;
+}
+
+/* panels */
+
+.panel-2col-stacked .panel-col-first {
+    width: 58%;
+}
+
+.panel-2col-stacked .panel-col-last {
+    width: 36%;
+    margin-left: 10px;
+    border-left: 1px solid #ccc;
+    padding: 12px;
+}
+
+body.page-node .pane-node-field-main-image .field-name-field-main-image {
+    float: none;
+    display: block;
+    margin-bottom: 12px;
+    margin-left: 0px;
+}
+
+#navigation {
+margin: 0 0 6px;
+padding: 0;
+}
+
+#block-menu-menu-about-menu {
+    margin-top: 40px;
+}
+
+#block-menu-menu-about-menu li {
+    font-size: 14px;
+    border-bottom: 1px solid #ccc;
+    list-style-type: none;
+    list-style-image: none;
+}
+
+#block-menu-menu-about-menu li a {
+    padding: 12px;
+    display: block;
+}
+
+li a.active {
+    font-weight: bold;
+}
+
+/*panes */
+div.panel-col-last {
+    background-color: #e3e6eb;
+}
+
+div.go-tool {
+    display: inline;
+    margin-right: 12px;
+}
