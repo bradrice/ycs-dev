@@ -1,6 +1,7 @@
 
 <div id="home_banner">
-  <?php $top = sizeof($variables['home_banner']);
+  <?php
+  $top = sizeof($variables['home_banner']);
    /* $random_num = rand(0, $top - 1);*/
    $banners = $variables['home_banner'];
     ?>

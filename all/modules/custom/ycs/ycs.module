@@ -38,12 +38,14 @@ function ycs_block_view($delta = '') {
     if (user_access('access content')) {
     // Retrieve the most recent nodes.
       $result = ycs_list(YCS_LIST_COUNT);
-      // Create links for each blog entry.
+      // create node list of banner images to display
+      //dsm($result);
       $items = array();
       $nodelist = array();
-      foreach ($result as $node) {
+      foreach ($result['node'] as $node) {
         array_push($nodelist, $node->nid);
     }
+    //build the banner node list to theme using the template defined in ycs_theme
     $banner_node_list = ycs_build_data($nodelist);
     if (!empty($banner_node_list)) {
       $block['content'] = theme('mydata', $banner_node_list);
@@ -95,19 +97,26 @@ function ycs_build_data($nodelist){
      return $arr;
 }
 
-function ycs_list($number) {
+function ycs_list() {
+  $query = new EntityFieldQuery;
+  $query->entityCondition('entity_type', 'node')
+ ->entityCondition('bundle', YCS_NODE_TYPE)
+  ->propertyCondition('status', 1)
+  ->fieldCondition('field_active_image', 'value', 1, '=');
+  $result = $query->execute();
+  return $result;
+
 // Use the Database API to retrieve our data.
 // @see http://drupal.org/node/310069
-  $query = db_select('node', 'n')
-  
-  ->fields('n', array('nid', 'title', 'uid'))
-  ->condition('type', YCS_NODE_TYPE)
-  ->condition('status', 1)
-  ->orderBy('created', 'DESC')
-  ->range(0, $number)
-  ->addTag('node_access')
-  ->execute();
-  return $query;
+  //$query = db_select('node', 'n')
+  //->fields('n', array('nid', 'title', 'uid'))
+  //->condition('type', YCS_NODE_TYPE)
+  //->condition('status', 1)
+  //->orderBy('created', 'DESC')
+  //->range(0, $number)
+  //->addTag('node_access')
+  //->execute();
+  //return $query;
 }
 
 function ycs_init() {
