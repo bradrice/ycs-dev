@@ -23,6 +23,7 @@ div#body-wrapper {
 #body-content {
     padding: 20px;
     background-color: #fff;
+	margin-top: 12px;
 }
 
 #header {
