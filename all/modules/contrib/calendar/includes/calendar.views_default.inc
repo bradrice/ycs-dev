@@ -8,13 +8,13 @@
 /**
  * Set up so it can be used as an API to create default calendars for
  * specific date fields.
- * 
+ *
  * Use variable_set() to establish criteria for default calendars.
- * Set the variable in custom modules or in settings. 
- * 
+ * Set the variable in custom modules or in settings.
+ *
  * Example: Add a new default calendar to custom
  * calendars that are already configured:
- *  
+ *
  * $options = variable_get('calendar_default_view_options', array());
  * $option = array(
  *   'name' => 'example_event',
@@ -25,7 +25,7 @@
  *   );
  * $options[] = $option;
  * variable_set('calendar_default_view_options', $options);
- * 
+ *
 */
 function calendar_views_default_views() {
   $views = array();
@@ -34,7 +34,7 @@ function calendar_views_default_views() {
   $view = calendar_views_construct();
   $views[$view->name] = $view;
 
-  // Then see if there are any custom calendars to be created 
+  // Then see if there are any custom calendars to be created
   // using variable_get().
   $calendar_options = variable_get('calendar_default_view_options', array());
   foreach ((array) $calendar_options as $calendar_option) {
@@ -45,31 +45,31 @@ function calendar_views_default_views() {
 }
 
 /**
- * 
+ *
  * Construct a default calendar to match specified options.
- * Views calls it without options, so the basic 
+ * Views calls it without options, so the basic
  * default view will use the default values.
- * 
- * @param $options: an optional array of options to 
+ *
+ * @param $options: an optional array of options to
  * create default calendars.
- * 
+ *
  * Possible options include:
- * @param string $name:           
+ * @param string $name:
  *   The view name, if empty, defaults to 'calendar'.
- * @param string $description:           
+ * @param string $description:
  *   The view description, if empty, defaults to generic description.
- * @param string $path:           
+ * @param string $path:
  *   The view url, if empty, defaults to 'calendar'.
- * @param array  $types:          
- *   Array of content types to limit the calendar to those types.  
+ * @param array  $types:
+ *   Array of content types to limit the calendar to those types.
  *   If empty, defaults to no type filter.
- * @param array  $date_fields:    
+ * @param array  $date_fields:
  *   Date fields used to filter the calendar.
  *   If empty, defaults to array('changed') for node.changed.
- * @param array  $display_fields: 
+ * @param array  $display_fields:
  *   Fields to display in the calendar.
  *   If empty, defaults to title and date fields.
- * 
+ *
  * @return the default calendar array.
  */
 function calendar_views_construct($options = NULL) {
@@ -106,6 +106,7 @@ $date_link_type = '';
 foreach ($types as $type => $label) {
   $colors[0][$type] = '#ffffff';
   $date_link_type = $type;
+  variable_set('calendar_date_link_' . $type, $path . '/month');
 }
 
 $type = '';
@@ -159,7 +160,7 @@ $handler->display->display_options['style_options']['with_weekno'] = '0';
 $handler->display->display_options['style_options']['multiday_theme'] = '1';
 $handler->display->display_options['style_options']['theme_style'] = '1';
 $handler->display->display_options['style_options']['max_items'] = '0';
-$handler->display->display_options['row_plugin'] = 'calendar_node';
+$handler->display->display_options['row_plugin'] = 'calendar_entity';
 /* Field: Content: Title */
 $handler->display->display_options['fields']['title']['id'] = 'title';
 $handler->display->display_options['fields']['title']['table'] = 'node';
@@ -273,7 +274,7 @@ $handler->display->display_options['style_options']['theme_style'] = '1';
 $handler->display->display_options['style_options']['max_items'] = '0';
 $handler->display->display_options['defaults']['style_options'] = FALSE;
 $handler->display->display_options['defaults']['row_plugin'] = FALSE;
-$handler->display->display_options['row_plugin'] = 'calendar_node';
+$handler->display->display_options['row_plugin'] = 'calendar_entity';
 $handler->display->display_options['row_options']['calendar_date_link'] = $type;
 $handler->display->display_options['row_options']['colors']['legend'] = 'type';
 $handler->display->display_options['row_options']['colors']['calendar_colors_type'] = array();
@@ -314,6 +315,7 @@ $handler->display->display_options['style_options']['name_size'] = '3';
 $handler->display->display_options['style_options']['mini'] = '0';
 $handler->display->display_options['style_options']['with_weekno'] = '0';
 $handler->display->display_options['style_options']['multiday_theme'] = '1';
+$handler->display->display_options['style_options']['groupby_times'] = 'hour';
 $handler->display->display_options['style_options']['theme_style'] = '1';
 $handler->display->display_options['style_options']['max_items'] = '0';
 $handler->display->display_options['defaults']['style_options'] = FALSE;
@@ -357,7 +359,7 @@ $handler->display->display_options['style_options']['max_items'] = '0';
 $handler->display->display_options['style_options']['groupby_times'] = 'hour';
 $handler->display->display_options['defaults']['style_options'] = FALSE;
 $handler->display->display_options['defaults']['row_plugin'] = FALSE;
-$handler->display->display_options['row_plugin'] = 'calendar_node';
+$handler->display->display_options['row_plugin'] = 'calendar_entity';
 $handler->display->display_options['defaults']['row_options'] = FALSE;
 $handler->display->display_options['defaults']['arguments'] = FALSE;
 /* Contextual filter: Date: Date (node) */
@@ -395,7 +397,7 @@ $handler->display->display_options['style_options']['theme_style'] = '1';
 $handler->display->display_options['style_options']['max_items'] = '0';
 $handler->display->display_options['defaults']['style_options'] = FALSE;
 $handler->display->display_options['defaults']['row_plugin'] = FALSE;
-$handler->display->display_options['row_plugin'] = 'calendar_node';
+$handler->display->display_options['row_plugin'] = 'calendar_entity';
 $handler->display->display_options['defaults']['row_options'] = FALSE;
 $handler->display->display_options['defaults']['arguments'] = FALSE;
 /* Contextual filter: Date: Date (node) */
@@ -481,7 +483,7 @@ $handler->display->display_options['filters']['date_filter']['add_delta'] = 'yes
 $handler->display->display_options['filters']['date_filter']['date_fields'] = drupal_map_assoc($aliases);
 $handler->display->display_options['filters']['date_filter']['date_method'] = 'OR';
 $handler->display->display_options['filters']['date_filter']['date_group'] = 'date';
-$handler->display->display_options['path'] = $path . '/ical/%/calendar.cal';
+$handler->display->display_options['path'] = $path . '/ical/%/calendar.ics';
 $handler->display->display_options['displays'] = array(
   'page' => 'page',
   'page_1' => 'page_1',

@@ -160,11 +160,11 @@ function devel_themer_theme_registry_alter(&$theme_registry) {
     }
     // Add our catch function to intercept functions as well as templates.
     $theme_registry[$hook]['function'] = 'devel_themer_catch_function';
-    
-    // Remove the process and preprocess functions so they are 
+
+    // Remove the process and preprocess functions so they are
     // only called by devel_themer_theme_twin().
-    $theme_registry[$hook]['devel_function_preprocess_intercept'] = $theme_registry[$hook]['preprocess functions'];
-    $theme_registry[$hook]['devel_function_process_intercept'] = $theme_registry[$hook]['process functions'];
+    $theme_registry[$hook]['devel_function_preprocess_intercept'] = isset($theme_registry[$hook]['preprocess functions']) ? $theme_registry[$hook]['preprocess functions'] : array();
+    $theme_registry[$hook]['devel_function_process_intercept'] = isset($theme_registry[$hook]['process functions']) ? $theme_registry[$hook]['process functions'] : array();
     $theme_registry[$hook]['preprocess functions'] = array();
     $theme_registry[$hook]['process functions'] = array();
   }
@@ -209,14 +209,24 @@ function devel_themer_catch_function() {
   if (!empty($return) && !is_array($return) && !is_object($return) && user_access('access devel information')) {
     $key = "thmr_$counter";
 
-    // Check for themer attribute in content returned
-    if (!strpos($return, $key)) {
-       // TODO exclude some hooks here.
-      $return = '<span thmr="' . $key . '">' . $return . '</span>';
+    // Check for themer attribute in content returned. Apply word boundaries so
+    // that 'thmr_10' doesn't match 'thmr_1'.
+    if (!preg_match("/\\b$key\\b/", $return)) {
+      // Exclude wrapping a SPAN around content returned by theme functions
+      // whose result is not intended for HTML usage.
+      $exclude = array('options_none');
+
+      // theme_html_tag() is a low-level theme function intended primarily for
+      // markup added to the document HEAD.
+      $exclude[] = 'html_tag';
+
+      if (!in_array($hook, $exclude)) {
+        $return = '<span thmr="' . $key . '">' . $return . '</span>';
+      }
     }
 
     if ($meta['type'] == 'func') {
-      $name = $meta['name'];
+      $name = $meta['hook'];
       $used = $meta['used'];
       if (empty($meta['wildcards'])) {
         $meta['wildcards'] = array($hook);
@@ -227,11 +237,12 @@ function devel_themer_catch_function() {
       }
     }
     else {
-      $name = $meta['name'];
-      if (empty($suggestions)) {
-        array_unshift($meta['suggestions'], $meta['used']);
+      $name = strtr($meta['hook'], '_', '-') . $meta['extension'];
+      $candidates = array();
+      foreach (array_reverse($meta['suggestions']) as $suggestion) {
+        $candidates[] = strtr($suggestion, '_', '-') . $meta['extension'];
       }
-      $candidates = array_reverse($meta['suggestions']);
+      $candidates[] = $name;
       $used = $meta['used'];
     }
 
@@ -280,7 +291,22 @@ function devel_themer_catch_function() {
 }
 
 /**
- * Near clone of theme().
+ * Nearly clones the Drupal API theme() function, but returns meta information in addition to the rendered output.
+ *
+ * Usage:
+ * @code
+ *   list($output, $meta) = devel_themer_theme_twin($hook, $variables);
+ * @endcode
+ *
+ * @return
+ *  An array with two items:
+ *  - $output: The rendered HTML.
+ *  - $meta: An associative array with the following keys:
+ *    - 'wildcards': Candidate hooks which have been looked at but don't have
+ *       an implementation.
+ *    - 'hook': The first found hook with an implementation.
+ *    - 'path': The path to the theme that implements $meta['hook'].
+ *    @todo Document remaining keys.
  */
 function devel_themer_theme_twin($hook, $variables) {
   static $hooks = NULL;
@@ -323,7 +349,7 @@ function devel_themer_theme_twin($hook, $variables) {
       if (isset($hooks[$hook])) {
         break;
       }
-      $meta['wildcards'] = $hook;
+      $meta['wildcards'][] = $hook;
     }
     if (!isset($hooks[$hook])) {
       // Only log a message when not trying theme suggestions ($hook being an
@@ -337,13 +363,13 @@ function devel_themer_theme_twin($hook, $variables) {
 
   $meta['hook'] = $hook;
   $info = $hooks[$hook];
-  $meta['path'] = $info['theme path'];
+  $meta['path'] = isset($info['theme path']) ? $info['theme path'] : NULL;
 
 
   global $theme_path;
   $temp = $theme_path;
   // point path_to_theme() to the currently used theme path:
-  $theme_path = $info['theme path'];
+  $theme_path = isset($info['theme path']) ? $info['theme path'] : NULL;
 
   // Include a file if the theme function or variable processor is held elsewhere.
   if (!empty($info['includes'])) {
@@ -447,7 +473,7 @@ function devel_themer_theme_twin($hook, $variables) {
       $info['function'] = $info['devel_function_intercept'];
     }
     $meta['hook'] = $hook;
-    $meta['path'] = $info['theme path'];
+    $meta['path'] = isset($info['theme path']) ? $info['theme path'] : NULL;
   }
 
   // Generate the output using either a function or a template.
@@ -501,7 +527,7 @@ function devel_themer_theme_twin($hook, $variables) {
     }
     $meta['type'] = 'tpl';
     $meta['used'] = $template_file;
-
+    $meta['extension'] = $extension;
     $meta['suggestions'] = $suggestions;
     $meta['template_file'] = $template_file;
     $meta['preprocessors'] = isset($info['preprocess functions']) ? $info['preprocess functions'] : array();

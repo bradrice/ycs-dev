@@ -95,19 +95,58 @@ function imageeditor_imagefield_element_process($element) {
 }
 
 /**
- * Implements hook_form_alter().
+ * Implements hook_form_FORM_ID_alter().
  */
 function imageeditor_imagefield_form_field_ui_field_edit_form_alter(&$form, $form_state) {
   if (in_array($form['instance']['widget']['type']['#value'], array('image_image', 'image_miw'))) {
-    $field = $form['#field'];
-    $instance = field_info_instance($form['instance']['entity_type']['#value'], $form['instance']['field_name']['#value'], $form['instance']['bundle']['#value']);
-    $form['instance']['settings'] += imageeditor_imagefield_field_widget_settings_form($field, $instance);
+    //$instance = field_info_instance($form['instance']['entity_type']['#value'], $form['instance']['field_name']['#value'], $form['instance']['bundle']['#value']);
+    //$instance = $form['#instance'];
+    $form['instance']['widget']['settings']['imageeditor'] = imageeditor_imagefield_field_widget_settings_form($form['#instance']);
+  }
+  if (array_key_exists('filefield_sources', $form['instance']['widget']['settings'])) {
+    $settings = $form['#instance']['widget']['settings']['filefield_sources'];
+    $source_imageeditor = array(
+      '#type' => 'fieldset',
+      '#title' => t('Create new image options'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#weight' => 20,
+    );
+    $source_imageeditor['source_imageeditor_image'] = array(
+      '#type' => 'managed_file',
+      '#title' => t('Starting image'),
+      '#description' => t('Provide starting image/canvas to edit/draw on.'),
+      '#default_value' => array_key_exists('source_imageeditor', $settings) ? $settings['source_imageeditor']['source_imageeditor_image'] : 0,
+      '#upload_location' => $form['#field']['settings']['uri_scheme'] . '://imageeditor/imagefield',
+    );
+    $form['instance']['widget']['settings']['filefield_sources']['source_imageeditor'] = $source_imageeditor;
+    $form['#submit'][] = 'imageeditor_imagefield_source_imageeditor_submit';
+  }
+}
+
+/**
+ * Handle file usage for create image from feature.
+ */
+function imageeditor_imagefield_source_imageeditor_submit($form, &$form_state) {
+  $old_fid = $form['instance']['widget']['settings']['filefield_sources']['source_imageeditor']['source_imageeditor_image']['#default_value'];
+  $new_fid = $form_state['values']['instance']['widget']['settings']['filefield_sources']['source_imageeditor']['source_imageeditor_image'];
+  
+  if ((!$old_fid && $new_fid) || ($old_fid && $new_fid && $old_fid != $new_fid)) {
+    $file = file_load($new_fid);
+    $file->status = FILE_STATUS_PERMANENT;
+    file_save($file);
+    // Record that the module (in this example, user module) is using the file.
+    file_usage_add($file, 'imageeditor_imagefield', 'field', 0);
+  }
+  if (($old_fid && $new_fid && $old_fid != $new_fid) || ($old_fid && !$new_fid)) {
+    $file = file_load($old_fid);
+    file_usage_delete($file, 'imageeditor_imagefield', 'field', 0);
+    file_delete($file);
   }
 }
 
 /**
  * Implements hook_field_widget_info_alter().
- *
  * A list of settings needed by Image Editor module on widgets.
  */
 function imageeditor_imagefield_field_widget_info_alter(&$info) {
@@ -130,6 +169,8 @@ function imageeditor_imagefield_field_widget_info_alter(&$info) {
   foreach (array('image_image', 'image_miw') as $value) {
     if (isset($info[$value]['settings'])) {
       $info[$value]['settings'] += $settings;
+      //$info[$value]['settings']['imageeditor'] = $settings;
+      $info[$value]['settings']['filefield_sources']['imageeditor']['source_imageeditor_image'] = 0;
     }
   }
 }
@@ -137,13 +178,13 @@ function imageeditor_imagefield_field_widget_info_alter(&$info) {
 /**
  * Configuration form for editing Image Editor settings for a field instance.
  */
-function imageeditor_imagefield_field_widget_settings_form($field, $instance) {
-  $widget = $instance['widget'];
-  $settings = $widget['settings'];
+function imageeditor_imagefield_field_widget_settings_form($instance) {
+  $settings = $instance['widget']['settings'];
+  //$settings = $instance['widget']['settings']['imageeditor'];
   
   drupal_add_css(drupal_get_path('module', 'imageeditor') . '/imageeditor.css');
   
-  $form['imageeditor'] = array(
+  $form = array(
     '#type' => 'fieldset',
     '#title' => t('Image editor'),
     '#collapsible' => TRUE,
@@ -153,7 +194,7 @@ function imageeditor_imagefield_field_widget_settings_form($field, $instance) {
     '#theme' => 'imageeditor_imagefield_field_widget_settings_form',
   );
   
-  $form['imageeditor']['editors'] = array(
+  $form['editors'] = array(
     '#type' => 'item',
     '#title' => t('Enabled Image Editors'),
     '#description' => t('Choose enabled image editors for this field and their order.'),
@@ -162,20 +203,20 @@ function imageeditor_imagefield_field_widget_settings_form($field, $instance) {
   $position = 0;
   foreach (imageeditor_info() as $codename => $editor) {
     $position++;
-    $form['imageeditor'][$codename . '_enabled'] = array(
+    $form[$codename . '_enabled'] = array(
       '#type' => 'checkbox',
       '#title' =>  '<div class="imageeditor-editor ' . $editor['class'] . '"></div>' . $editor['name'] . ' (<a href="' . $editor['site'] . '" target="_blank">' . t('site') . '</a>)',
       '#default_value' => isset($settings[$codename . '_enabled']) ? $settings[$codename . '_enabled'] : 0,
     );
-    $form['imageeditor'][$codename . '_description'] = array(
+    $form[$codename . '_description'] = array(
       '#type' => 'markup',
       '#markup' => $editor['description'],
     );
-    $form['imageeditor'][$codename . '_api_key'] = array(
+    $form[$codename . '_api_key'] = array(
       '#type' => 'markup',
       '#markup' => $editor['api_key'] ? l(variable_get($editor['api_key_codename']) ? t('Already set'): t('Required'), 'admin/config/media/imageeditor') : t('Not needed'),
     );
-    $form['imageeditor'][$codename . '_position'] = array(
+    $form[$codename . '_position'] = array(
       '#type' => 'textfield',
       '#default_value' => isset($settings[$codename . '_position']) ? $settings[$codename . '_position'] : $position,
       '#size' => 3,
@@ -184,7 +225,7 @@ function imageeditor_imagefield_field_widget_settings_form($field, $instance) {
     );
   }
   
-  $form['imageeditor']['uploaders'] = array(
+  $form['uploaders'] = array(
     '#type' => 'item',
     '#title' => t('Enabled Upload services'),
     '#description' => t('Choose enabled upload services to upload images to if your images are not available from external network.'),
@@ -193,20 +234,20 @@ function imageeditor_imagefield_field_widget_settings_form($field, $instance) {
   $position = 0;
   foreach (imageeditor_uploaders() as $codename => $uploader) {
     $position++;
-    $form['imageeditor'][$codename . '_enabled'] = array(
+    $form[$codename . '_enabled'] = array(
       '#type' => 'checkbox',
       '#title' =>  '<div class="imageeditor-uploader ' . $uploader['class'] . '"></div>' . $uploader['name'] . ' (<a href="' . $uploader['site'] . '" target="_blank">' . t('site') . '</a>)',
       '#default_value' => isset($settings[$codename . '_enabled']) ? $settings[$codename . '_enabled'] : 0,
     );
-    $form['imageeditor'][$codename . '_description'] = array(
+    $form[$codename . '_description'] = array(
       '#type' => 'markup',
       '#markup' => $uploader['description'],
     );
-    $form['imageeditor'][$codename . '_api_key'] = array(
+    $form[$codename . '_api_key'] = array(
       '#type' => 'markup',
       '#markup' => $uploader['api_key'] ? l(variable_get($uploader['api_key_codename']) ? t('Already set'): t('Required'), 'admin/config/media/imageeditor') : t('Not needed'),
     );
-    $form['imageeditor'][$codename . '_position'] = array(
+    $form[$codename . '_position'] = array(
       '#type' => 'textfield',
       '#default_value' => isset($settings[$codename . '_position']) ? $settings[$codename . '_position'] : $position,
       '#size' => 3,
@@ -215,7 +256,7 @@ function imageeditor_imagefield_field_widget_settings_form($field, $instance) {
     );
   }
   
-  $form['imageeditor']['imageeditor_icons_position'] = array(
+  $form['imageeditor_icons_position'] = array(
     '#type' => 'radios',
     '#title' => t('Icons position'),
     '#description' => t('Whether to show editing icons under the image preview or as a popup when you hover your mouse over the image preview.'),
@@ -223,7 +264,7 @@ function imageeditor_imagefield_field_widget_settings_form($field, $instance) {
     '#default_value' => $settings['imageeditor_icons_position'] ? $settings['imageeditor_icons_position'] : 0,
     '#weight' => 20,
   );  
-  $form['imageeditor']['imageeditor_replace'] = array(
+  $form['imageeditor_replace'] = array(
     '#type' => 'checkbox',
     '#title' => t('Replace original images'),
     '#description' => t('When editing images replace the original image with the edited one. You will be able to override this setting when using Picnik editor.'),
@@ -237,18 +278,21 @@ function imageeditor_imagefield_field_widget_settings_form($field, $instance) {
 function imageeditor_imagefield_enabled($settings) {
   $enabled = FALSE;
   foreach (imageeditor_info() as $codename => $editor) {
-    if ($settings[$codename . '_enabled']) {
+    if (isset($settings[$codename . '_enabled']) && $settings[$codename . '_enabled']) {
       $enabled = TRUE;
     }
   }
   foreach (imageeditor_uploaders() as $codename => $uploader) {
-    if ($settings[$codename . '_enabled']) {
+    if (isset($settings[$codename . '_enabled']) && $settings[$codename . '_enabled']) {
       $enabled = TRUE;
     }
   }
   return $enabled;
 }
 
+/**
+ * Implements hook_filefield_sources_info().
+ */
 function imageeditor_imagefield_filefield_sources_info() {
   $sources = array();
   if (!user_access('use imageeditor_imagefield')) {
@@ -268,6 +312,20 @@ function imageeditor_imagefield_filefield_source_imageeditor_process($element, &
   $instance = field_info_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);
   if (!in_array($instance['widget']['type'], array('image_image', 'image_miw'))) {
     return $element;
+  }
+  
+  static $conf_added;
+  if (!$conf_added) {
+    $conf_added = TRUE;
+    $fid = $instance['widget']['settings']['filefield_sources']['source_imageeditor']['source_imageeditor_image'];
+    if ($fid) {
+      $file = file_load($fid);
+      $url = file_create_url($file->uri);
+      drupal_add_js(array('imageeditor_imagefield' => array($element['#field_name'] => array('source_imageeditor_image' => $url))), 'setting');
+    }
+    else {
+      drupal_add_js(array('imageeditor_imagefield' => array($element['#field_name'] => array('source_imageeditor_image' => FALSE))), 'setting');
+    }
   }
   
   $element['imageeditor'] = array(

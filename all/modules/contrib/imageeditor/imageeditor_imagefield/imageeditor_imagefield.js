@@ -6,7 +6,7 @@ Drupal.behaviors.imageeditor_imagefield.attach = function(context, settings) {
   /*$imageeditor_divs_existing.each(
     function(index) {
       var field_name = $(this).find('.field_name').attr('value');
-      if (Drupal.settings.imageeditor_imagefield[field_name]['imageeditor_icons_position'] == 1) {
+      if (Drupal.settings.imageeditor_imagefield.[field_name]['imageeditor_icons_position'] == 1) {
         $(this).parent().css({'position': 'relative', 'width': '100px'}).hover(
           function() {
             $(this).find('.imageeditor').css({'position': 'absolute', 'top': 0}).show();
@@ -20,9 +20,8 @@ Drupal.behaviors.imageeditor_imagefield.attach = function(context, settings) {
   );*/
   
   $.each(Drupal.settings.imageeditor_imagefield, function(index, value) {
-    var field_name = index,
-    editors = value.editors,
-    uploaders = value.uploaders;
+  //TODO: remove the processed values from Drupal.settigns - as the AJAX callback returns all the field values
+    var field_name = index, editors = value.editors, uploaders = value.uploaders;
     $.each(this.items, function(index, value) {
       var element_id = value;
       $removebutton = $('input#'+value+'-remove-button', context);
@@ -38,7 +37,7 @@ Drupal.behaviors.imageeditor_imagefield.attach = function(context, settings) {
           }
           var url = $imagewidget.find('span.file').find('a').attr('href'),
           $element = $imagewidget.children().last();
-          options = {editors: editors, uploaders: uploaders, image: {url: url}, data: {field_name: field_name, element_id: element_id}, $element: $element, callback: Drupal.imageeditor_imagefield.save};
+          var options = {editors: editors, uploaders: uploaders, image: {url: url}, data: {field_name: field_name, element_id: element_id}, $element: $element, callback: Drupal.imageeditor_imagefield.save};
           Drupal.imageeditor.initialize(options);
         }
       }
@@ -46,13 +45,16 @@ Drupal.behaviors.imageeditor_imagefield.attach = function(context, settings) {
         if ($createimage.not('.imageeditor-imagefield-processed').size()) {
           $createimage.addClass('imageeditor-imagefield-processed');
           $imageeditor_source = $createimage.parents('div.image-widget-data').find('div.filefield-source-imageeditor');
-          options = {editors: editors, uploaders: uploaders, data: {field_name: field_name, element_id: element_id}, $element: $imageeditor_source.find('div'), callback: Drupal.imageeditor_imagefield.save};
+          var options = {editors: editors, uploaders: uploaders, data: {field_name: field_name, element_id: element_id}, $element: $imageeditor_source.find('div'), callback: Drupal.imageeditor_imagefield.save};
+          if (Drupal.settings.imageeditor_imagefield[field_name].source_imageeditor_image) {
+            options.image = {url: Drupal.settings.imageeditor_imagefield[field_name].source_imageeditor_image};
+          }
           Drupal.imageeditor.initialize(options);
           //launch the editor upon clicking on the "Create image" link if there is only one editor
           $editors = $imageeditor_source.find('div.editors').find('div');
           if ($editors.length == 1) {
             $createimage.click(function(event) {
-            	$editors.click();
+              $editors.click();
             });
           }
         }

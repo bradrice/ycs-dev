@@ -4,9 +4,9 @@ package = Image Editor
 core = 7.x
 configure = admin/config/media/imageeditor
 
-; Information added by drupal.org packaging script on 2011-12-16
-version = "7.x-1.7"
+; Information added by drupal.org packaging script on 2012-01-22
+version = "7.x-1.8"
 core = "7.x"
 project = "imageeditor"
-datestamp = "1324024550"
+datestamp = "1327261252"
 

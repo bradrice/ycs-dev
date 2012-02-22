@@ -117,11 +117,12 @@ Drupal.imageeditor = function() {
       }
     },
     aviaryfeather: function() {
-      if (typeof(Aviary) != 'undefined') {
+      if (typeof(Aviary) != 'undefined' && typeof(Drupal.settings.imageeditor.aviary_feather) != 'undefined') {
         return new Aviary.Feather({
           apiKey: Drupal.settings.imageeditor.aviary_feather.options.apiKey,
           openType: Drupal.settings.imageeditor.aviary_feather.options.openType,
           theme: Drupal.settings.imageeditor.aviary_feather.options.theme,
+          apiVersion: Drupal.settings.imageeditor.aviary_feather.options.apiVersion,
           onSave: function(imageID, newURL, hiResURL) {
             Drupal.settings.imageeditor.save.image = newURL;
             Drupal.settings.imageeditor.save.hiresimage = hiResURL;

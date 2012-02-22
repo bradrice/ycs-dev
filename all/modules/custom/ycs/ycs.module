@@ -7,7 +7,7 @@
 * This module provides a block that inserts random images that can be clicked through.
 */
 define('YCS_NODE_TYPE', 'home_page_banner');
-define('YCS_LIST_COUNT', 3);
+define('YCS_LIST_COUNT', 12);
 /**
 * Implements hook_block_info().
 */
@@ -15,7 +15,6 @@ function ycs_block_info() {
   $blocks = array();
   $blocks['home_banner'] = array(
     'info' => t('Rotating images for the home banner.'),
-    'cache' => DRUPAL_NO_CACHE,
   );
   return $blocks;
 }
@@ -25,10 +24,9 @@ function ycs_block_info() {
 */
 function ycs_block_view($delta = '') {
 // Create an empty block.
-  $block = array(
+ $block = array(
   'subject' => '',
   'content' => '',
-  'cache' => DRUPAL_NO_CACHE,
   );
   // Check which block is being requested.
   if ($delta == 'home_banner') {
@@ -37,12 +35,12 @@ function ycs_block_view($delta = '') {
     // Check if the user can access content.
     if (user_access('access content')) {
     // Retrieve the most recent nodes.
-      $result = ycs_list(YCS_LIST_COUNT);
+      $results = ycs_list(YCS_LIST_COUNT);
       // create node list of banner images to display
       //dsm($result);
       $items = array();
       $nodelist = array();
-      foreach ($result['node'] as $node) {
+      foreach ($results['node'] as $node) {
         array_push($nodelist, $node->nid);
     }
     //build the banner node list to theme using the template defined in ycs_theme
@@ -50,7 +48,7 @@ function ycs_block_view($delta = '') {
     if (!empty($banner_node_list)) {
       $block['content'] = theme('mydata', $banner_node_list);
     }
-      }
+  }
 }
 return $block;
 }
@@ -69,7 +67,6 @@ function ycs_theme() {
 }
 
 function ycs_build_data($nodelist){
-  
   $myelements = node_load_multiple($nodelist);
     //dsm($myelements);
     $top = array();
@@ -91,6 +88,7 @@ function ycs_build_data($nodelist){
         $top['home_banner_image'] = $node->field_home_banner_image[LANGUAGE_NONE][0];
       }
       array_push($arr['home_banner'], $top);
+      $top = array();
     }
     $listsize = sizeof($arr['home_banner']);
      // dsm($nodeitems);
@@ -100,52 +98,17 @@ function ycs_build_data($nodelist){
 function ycs_list() {
   $query = new EntityFieldQuery;
   $query->entityCondition('entity_type', 'node')
- ->entityCondition('bundle', YCS_NODE_TYPE)
+  ->entityCondition('bundle', YCS_NODE_TYPE)
   ->propertyCondition('status', 1)
   ->fieldCondition('field_active_image', 'value', 1, '=')
   ->fieldCondition('field_rotation_category', 'value', 'Home Page', '=');
   $result = $query->execute();
   return $result;
-
-// Use the Database API to retrieve our data.
-// @see http://drupal.org/node/310069
-  //$query = db_select('node', 'n')
-  //->fields('n', array('nid', 'title', 'uid'))
-  //->condition('type', YCS_NODE_TYPE)
-  //->condition('status', 1)
-  //->orderBy('created', 'DESC')
-  //->range(0, $number)
-  //->addTag('node_access')
-  //->execute();
-  //return $query;
 }
 
 function ycs_init() {
   $path = drupal_get_path('module', 'ycs');
-  drupal_add_js($path. '/js/jquery.tools.1.25.js');
+  drupal_add_js($path. '/js/slides.min.jquery.js');
   drupal_add_js($path . '/js/ycs.js');
   drupal_add_css($path . '/css/ycs-slideshow.css');
 }
-
-function ycs_image($variables) {
-    //$dsm($variables);
-  $attributes = $variables['attributes'];
-  $img = new Imagick();
-  $img->readImage(file_create_url($variables['path']));    
-  $img->resizeImage(610,400,Imagick::FILTER_LANCZOS,1);
-  $img->writeImage("/drupal/sites/default/files/home_banner/". $variables['file']);
-  $attributes['src'] = $img;
-  $img->clear();
-  $img->destroy();  
-
-  print "findthis" . $attributes['src'];
-  foreach (array('width', 'height', 'alt', 'title') as $key) {
-    if (isset($variables[$key])) {
-      $attributes[$key] = $variables[$key];
-    }
-  }
-
-  return '<img' . drupal_attributes($attributes) . ' dat-rel="override" />';
-}
-
-

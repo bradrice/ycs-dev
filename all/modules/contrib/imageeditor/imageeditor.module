@@ -120,6 +120,17 @@ function imageeditor_settings_form() {
     '#title' => t('Special Aviary Feather options'),
     '#description' => t('Aviary Feather editor allows for additional options'),
   );
+  $form['aviary_feather']['imageeditor_aviary_feather_version'] = array(
+    '#type' => 'select',
+    '#title' => t('Version'),
+    '#description' => t('Choose Aviary Feather version.'),
+    '#options' => array(
+      1 => 1,
+      2 => 2,
+    ),
+    '#default_value' => variable_get('imageeditor_aviary_feather_version', 2),
+    '#weight' => 5,
+  );
   $form['aviary_feather']['imageeditor_aviary_feather_secret'] = array(
     '#type'          => 'textfield',
     '#title'         => t('Secret API key'),
@@ -128,7 +139,7 @@ function imageeditor_settings_form() {
     '#size'          => 50,
     '#maxlength'     => 100,
     '#required'      => FALSE,
-    '#weight'        => 5,
+    '#weight'        => 10,
   );
   $form['aviary_feather']['imageeditor_aviary_feather_theme'] = array(
     '#type' => 'select',
@@ -144,7 +155,7 @@ function imageeditor_settings_form() {
       'silver' => 'silver'
     ),
     '#default_value' => variable_get('imageeditor_aviary_feather_theme', 'bluesky'),
-    '#weight' => 10,
+    '#weight' => 15,
   );
   
   $form['#theme'] = 'imageeditor_settings_form';
@@ -186,6 +197,7 @@ function imageeditor_save($service= NULL) {
       if (!file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
         watchdog('imageeditor', 'Directory %directory could not be created.', array('%directory' => $directory), WATCHDOG_WARNING);
         drupal_json_output('There was an error saving your image. Please contact site administrator.');
+        exit;
       }
     }
     
@@ -224,6 +236,7 @@ function imageeditor_save($service= NULL) {
         }
         $file = file_unmanaged_save_data(base64_decode($_POST['data']), $uri);
         drupal_json_output(file_create_url($file));
+        exit;
       }
     }
     elseif ($service == 'svgedit') {
@@ -323,14 +336,17 @@ function imageeditor_upload($service = NULL) {
   if ($service == 'pixlr_upload') {
     //drupal_json_output('http://pixlr.com/_temp/' . $response);
     drupal_json_output($response);
+    exit;
   }
   elseif ($service == 'immio_upload') {
     $result = drupal_json_decode($response);
     if ($result['success']) {
       drupal_json_output($result['payload']['uri']);
+      exit;
     }
     else {
       drupal_json_output($result['payload']);
+      exit;
     }
   }
   elseif ($service == 'imageshack_upload') {
@@ -338,9 +354,11 @@ function imageeditor_upload($service = NULL) {
     if ($xml) {
       if (isset($xml->error)) {
         drupal_json_output($xml->error);
+        exit;
       }
       else {
         drupal_json_output($xml->links->image_link);
+        exit;
       }
     }
   }
@@ -554,6 +572,7 @@ function imageeditor_info() {
         'apiKey' => variable_get('imageeditor_aviary_api_key', ''),
         'openType' => 'lightbox',
         'theme' => variable_get('imageeditor_aviary_feather_theme', 'bluesky'),
+        'apiVersion' => variable_get('imageeditor_aviary_feather_version', 2),
       ),
       'include_js' => array(
         'file' => 'http://feather.aviary.com/js/feather.js',
