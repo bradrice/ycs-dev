@@ -49,6 +49,10 @@ padding: 36px 0 0;
   background-color: #ccc;
 }
 
+div.name-field-main-image {
+  float: right;
+}
+
 #block-system-main-menu ul.menu li a {
   display: block;
 }
@@ -173,13 +177,6 @@ body.page-node .pane-node-field-main-image .field-name-field-main-image {
     margin-left: 0px;
 }
 
-#navigation {
-margin: 0 0 6px;
-padding: 0;
-position: relative;
-top: -12px;
-}
-
 #block-menu-menu-about-menu {
     margin-top: 40px;
 }
@@ -208,4 +205,56 @@ div.panel-col-last {
 div.go-tool {
     display: inline;
     margin-right: 12px;
+}
+
+section#block-menu-block-1 h2 {
+  font-size: 1.2em;
+  margin-bottom: .5em;
+}
+
+div.menu-block-1 ul {
+  list-style: none;
+}
+
+div.menu-block-1 ul li {
+  font-size: 1.1em;
+  margin-bottom: .5em;
+  border-bottom: 1px solid #e3e6eb;
+  list-style: none;
+}
+
+section#block-system-main-menu ul.menu li {
+  font-size: 1.2em;
+  text-align: center;
+}
+
+span.label_inline {
+  display: inline;
+  margin-right: .5em;
+}
+
+div.view-department-directory div.views-field-title {
+  font-size: 1.2em;
+}
+
+div.view-department-directory tr {
+  border-bottom: 1px solid #ccc;
+}
+
+div.view-department-directory td {
+  padding-bottom: .5em;
+  padding-left: .5em;
+}
+
+div.view-department-directory td.col-1 {
+  border-right: 1px solid #ccc;
+}
+
+section#block-system-main-menu li {
+  border-right: 1px solid #005db3;
+  width: 150px;
+}
+
+section#block-system-main-menu li.last {
+  border-right: none;
 }

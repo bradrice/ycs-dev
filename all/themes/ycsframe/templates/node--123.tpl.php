@@ -24,32 +24,35 @@
 	<?php endif; ?>
   <?php endif; ?>
 <?php 
-      if (isSet($content['field_sidebar']) && !empty($content['field_sidebar'])) {
-        print '<section class="clearfix grid_10">';
-      }
-      else {
-        print '<section class="clearfix">';
-      }
-     if (isSet($content['field_sidebar']) && !empty($content['field_sidebar'])) {
-       print '<div class="content grid_6 alpha"' . $content_attributes . '>';
-     }
-     else {
-       print '<div class="content">';
-     }
+ print '<section id="main" role="main" class="clearfix';
+      if (!empty($content['field_sidebar'])) 
+        print ' grid_10">';
+      else
+        print '">';
+?>
 
-      // Hide comments, tags, and links now so that we can render them later.
+  
+<?php
+if (!empty($content['field_sidebar'])) {
+  print '<div class="content grid_6 alpha' .  $content_attributes . '">';
+  print '<div class="right_sidebar grid_4 omega">';
+print render($content['field_sidebar']); 
+print '</div>';
+}
+else {
+  print '<div class="content grid_10 omega' . $content_attributes . '">';
+}
+
+          // Hide comments, tags, and links now so that we can render them later.
       hide($content['comments']);
       hide($content['links']);
       hide($content['field_tags']);
       hide($content['field_sidebar']);
-           print render($content);
-         ?>
-  </div>
-<?php if (!empty($content['field_sidebar'])): ?>
-<div class="right_sidebar grid_4 omega">
-<?php print render($content['field_sidebar']); ?>
-</div>
-<?php endif; ?>
+      print render($content);
+$block = module_invoke('views', 'block_view', 'department_directory-block');
+      print render($block);
+      print "</div>";
+?>
 </section>
   <?php if (!empty($content['field_tags']) || !empty($content['links'])): ?>
     <footer>
@@ -63,5 +66,6 @@
 <?php if (!$page): ?>
   </article> <!-- /.node -->
 <?php endif; ?>
+
 
 
