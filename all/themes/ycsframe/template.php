@@ -23,6 +23,10 @@ function ycsframe_preprocess_page(&$vars, $hook) {
   if (isset($vars['node'])) {
   // If the node type is "blog" the template suggestion will be "page--blog.tpl.php".
    $vars['theme_hook_suggestions'][] = 'page__'. str_replace('_', '--', $vars['node']->type);
+    if ($vars['node']->nid == '126'){
+      drupal_add_js('http://maps.google.com/maps/api/js?sensor=false', 'file');
+      drupal_add_js(base_path() . drupal_get_path('theme', 'ycsframe') .'/includes/js/gmap.js', 'file');
+    }
   }
 }
 
@@ -56,4 +60,3 @@ function ycsframe_breadcrumb($variables) {
     return $output;
   }
 }
-

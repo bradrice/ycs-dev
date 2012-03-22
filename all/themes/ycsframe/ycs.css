@@ -53,6 +53,7 @@ div.name-field-main-image {
   float: right;
 }
 
+
 #block-system-main-menu ul.menu li a {
   display: block;
 }
@@ -157,6 +158,59 @@ body.page-node div.field-type-image {
     margin-bottom: 6px;
 }
 
+/* school image css */
+body.node-type-school div.field-name-field-school-image {
+  float: none;
+  text-align: center;
+  margin: 6px 12px 6px 0;
+}
+
+div.mission_statement {
+  padding: 1em 0;
+  text-align: center;
+  border-bottom: 1px solid #677c97;
+  margin-bottom: 1em;
+}
+
+div.school_info {
+  float: left;
+  padding: 1em;
+  width: 180px;
+  display: inline-block;
+}
+
+div.field-name-field-school-image img {
+  border: 4px solid #677c97;
+}
+
+.node-type-school .field-label {
+  color: #3d577a;
+}
+
+table.info_table {
+  margin: auto;
+  width: 400px;
+}
+
+div#map_button {
+  background-image: url(/drupal/sites/all/themes/ycsframe/images/map_button.png);
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  height: 30px;
+  width: 89px;
+  display: block;
+  margin: 2px auto;
+}
+
+div#map_button:hover {
+  cursor: pointer;
+  background-position: 0px -30px;
+}
+
+/* school mission statement */
+body.page-node div.field-name-field-mission {
+}
+
 /* panels */
 
 .panel-2col-stacked .panel-col-first {
@@ -257,4 +311,9 @@ section#block-system-main-menu li {
 
 section#block-system-main-menu li.last {
   border-right: none;
+}
+
+div#map_canvas {
+  width: 100%;
+  height: 600px;
 }
